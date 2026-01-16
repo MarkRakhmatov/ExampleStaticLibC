@@ -1,31 +1,19 @@
 #include <string>
 #include "ExampleStaticLibC/ExampleStaticLibC.hpp"
+#include "ExampleStaticLibB/ExampleStaticLibB.hpp"
+#include "ExampleStaticLibA/ExampleStaticLibA.hpp"
 
 
-namespace csl {
-
-  constexpr int g_maxIntFactorialInput = 12;
+namespace libC {
 
   std::string getString() { return "cpp static lib example"; }
 
   int factorial(int input) noexcept {
-    if (input > g_maxIntFactorialInput) {
-      return -1;
-    }
-
-    if (input < 2) {
-      return 1;
-    }
-
-    return input * factorial(input - 1);
+    return libB::factorial(input);
   }
 
   int uncoveredFunction(int value) noexcept {
-    if(value > 0) {
-      return 1;
-    }
-
-    return -1;
+    return csl::uncoveredFunction(value);
   }
 
 }  // namespace csl
