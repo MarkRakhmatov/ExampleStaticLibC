@@ -6,7 +6,7 @@
 
 namespace libC {
 
-  std::string getString() { return "cpp static lib example"; }
+  std::string getString() { return libA::getString(); }
 
   int factorial(int input) noexcept {
     return libB::factorial(input);
