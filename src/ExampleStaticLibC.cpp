@@ -12,8 +12,4 @@ namespace libC {
     return libB::factorial(input);
   }
 
-  int uncoveredFunction(int value) noexcept {
-    return libA::uncoveredFunction(value);
-  }
-
 }  // namespace csl
