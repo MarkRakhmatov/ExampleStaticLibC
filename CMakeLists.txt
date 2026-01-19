@@ -32,12 +32,12 @@ endif()
 
 include(cmake/CPM.cmake)
 
-# CPMAddPackage("gh:MarkRakhmatov/ExampleStaticLibB#44b79aeb8a5ddc54ffea45e8e7ec5808575f1e7e")
+# CPMAddPackage("gh:MarkRakhmatov/ExampleStaticLibB#a4730fb513954669f4707c5f679bd380719e5b2b")
 include(FetchContent)
 FetchContent_Declare(
   ExampleStaticLibB
   GIT_REPOSITORY https://github.com/MarkRakhmatov/ExampleStaticLibB.git
-  GIT_TAG 44b79aeb8a5ddc54ffea45e8e7ec5808575f1e7e
+  GIT_TAG a4730fb513954669f4707c5f679bd380719e5b2b
 )
 FetchContent_MakeAvailable(ExampleStaticLibB)
 
@@ -68,9 +68,34 @@ if(NOT TEST_INSTALLED_VERSION)
   endif()
 endif()
 
+set_target_properties(${PROJECT_NAME} PROPERTIES STATIC_DEPENDENCIES "ExampleStaticLibB")
+get_target_property(STATIC_DEPENDENCIES ${PROJECT_NAME} STATIC_DEPENDENCIES)
+
+set_target_properties(${PROJECT_NAME} PROPERTIES TRANSITIVE_STATIC_DEPENDENCIES "")
+get_target_property(TRANSITIVE_STATIC_DEPENDENCIES ${PROJECT_NAME} TRANSITIVE_STATIC_DEPENDENCIES)
+
 # Link dependencies
-target_link_libraries(
-  ${PROJECT_NAME} PRIVATE ExampleStaticLibB::ExampleStaticLibB ExampleStaticLibA::ExampleStaticLibA
+if(NOT "${STATIC_DEPENDENCIES}" STREQUAL "")
+  message(STATUS "[${PROJECT_NAME}] Static dependencies: ${STATIC_DEPENDENCIES}")
+  foreach(item ${STATIC_DEPENDENCIES})
+    message(STATUS "[${PROJECT_NAME}] Linking static dependency ${item}")
+    target_link_libraries(${PROJECT_NAME} PRIVATE ${item}::${item})
+
+    get_target_property(TMP_TRANSITIVE_STATIC_DEPENDENCIES ${item} STATIC_DEPENDENCIES)
+    if(NOT "${TMP_TRANSITIVE_STATIC_DEPENDENCIES}" STREQUAL "")
+      foreach(transitive_depend ${TMP_TRANSITIVE_STATIC_DEPENDENCIES})
+        message(
+          STATUS "[${PROJECT_NAME}] Linking transitive static dependency ${transitive_depend}"
+        )
+        target_link_libraries(${PROJECT_NAME} PRIVATE ${transitive_depend}::${transitive_depend})
+      endforeach()
+    endif()
+    list(APPEND TRANSITIVE_STATIC_DEPENDENCIES ${TMP_TRANSITIVE_STATIC_DEPENDENCIES})
+  endforeach()
+endif()
+
+set_target_properties(
+  ${PROJECT_NAME} PROPERTIES TRANSITIVE_STATIC_DEPENDENCIES "${TRANSITIVE_STATIC_DEPENDENCIES}"
 )
 
 target_include_directories(
@@ -143,7 +168,16 @@ string(TOLOWER ${PROJECT_NAME}/version.h VERSION_HEADER_LOCATION)
 
 include(GNUInstallDirs)
 
-set(INSTALL_TARGETS ${PROJECT_NAME} ExampleStaticLibA ExampleStaticLibB)
+set(INSTALL_TARGETS ${PROJECT_NAME})
+
+message(STATUS "[${PROJECT_NAME}] Exporting static dependencies: ${STATIC_DEPENDENCIES}")
+list(APPEND INSTALL_TARGETS ${STATIC_DEPENDENCIES})
+
+message(
+  STATUS
+    "[${PROJECT_NAME}] Exporting transitive static dependencies: ${TRANSITIVE_STATIC_DEPENDENCIES}"
+)
+list(APPEND INSTALL_TARGETS ${TRANSITIVE_STATIC_DEPENDENCIES})
 
 install(
   TARGETS ${INSTALL_TARGETS}

@@ -13,7 +13,7 @@ namespace libC {
   }
 
   int uncoveredFunction(int value) noexcept {
-    return csl::uncoveredFunction(value);
+    return libA::uncoveredFunction(value);
   }
 
 }  // namespace csl
