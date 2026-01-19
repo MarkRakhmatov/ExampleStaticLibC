@@ -32,14 +32,7 @@ endif()
 
 include(cmake/CPM.cmake)
 
-# CPMAddPackage("gh:MarkRakhmatov/ExampleStaticLibB#a4730fb513954669f4707c5f679bd380719e5b2b")
-include(FetchContent)
-FetchContent_Declare(
-  ExampleStaticLibB
-  GIT_REPOSITORY https://github.com/MarkRakhmatov/ExampleStaticLibB.git
-  GIT_TAG a4730fb513954669f4707c5f679bd380719e5b2b
-)
-FetchContent_MakeAvailable(ExampleStaticLibB)
+CPMAddPackage("gh:MarkRakhmatov/ExampleStaticLibB#b08c6de3f4a209dc7e5fad16cf366a24bbf9f2d0")
 
 # ---- Add source files ----
 
